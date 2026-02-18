@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-// import { changePassword } from '../api';
+import { changePassword } from '../api';
 import { jwtDecode } from "jwt-decode";
 
 const Dashboard = ({ token, onLogout }) => {
@@ -7,11 +7,17 @@ const Dashboard = ({ token, onLogout }) => {
   const [passData, setPassData] = useState({ oldPassword: '', newPassword: '' });
 
   useEffect(() => {
-    if (token) {
-      const decoded = jwtDecode(token);
-      setUser(decoded);
+    try {
+      if (token) {
+        const decoded = jwtDecode(token);
+        setUser(decoded);
+      }
+    } catch (error) {
+      console.error("Invalid token found, logging out...", error);
+      localStorage.removeItem('token');
+      onLogout(); 
     }
-  }, [token]);
+  }, [token, onLogout]);
 
   const handleChangePass = async (e) => {
     e.preventDefault();
@@ -25,7 +31,7 @@ const Dashboard = ({ token, onLogout }) => {
 
   return (
     <div>
-      <h1>Welcome, {user?.name}!</h1>
+      <h1>Welcome, {user?.name|| "user"}!</h1>
       <p>Email: {user?.email}</p>
       <button onClick={onLogout}>Logout</button>
       
