@@ -11,7 +11,7 @@ const sendEmail = require("../utils/sendEmail");
 // Register 
 
 router.post('/register', async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password , role} = req.body;
   try {
     let user = await User.findOne({ email });
     if (user) return res.status(400).json({ msg: 'User already exists' });
@@ -19,7 +19,7 @@ router.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    user = new User({ name, email, password: hashedPassword });
+    user = new User({ name, email, password: hashedPassword , role: role || "User"});
     await user.save();
     res.json({ msg: 'User registered successfully' });
   } catch (err) {
@@ -39,7 +39,9 @@ router.post('/login', async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ msg: 'Invalid Credentials' });
 
-    const payload = { userId: user.id, name: user.name , email: user.email};
+    const role = user.role || "User";
+    const grants = role === "Admin" ? ["read", "write"] : ["read"];
+    const payload = { userId: user.id, name: user.name , email: user.email , role: user.role, grants : grants};
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.json({ token });
   } catch (err) {

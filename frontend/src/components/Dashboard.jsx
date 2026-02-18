@@ -36,7 +36,11 @@ const Dashboard = ({ token, onLogout }) => {
       <button onClick={onLogout}>Logout</button>
       
       <hr />
-      
+     <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', border: '1px solid #444', borderRadius: '8px', backgroundColor: '#222' }}>
+        <h3 style={{ marginTop: 0 }}>Access Token Grants</h3>
+        <p><strong>Role:</strong> {user?.role || "User"}</p>
+        <p><strong>Permissions:</strong> {user?.grants ? user.grants.join(", ") : "None"}</p>
+      </div>
       <h3>Change Password</h3>
       <form onSubmit={handleChangePass}>
         <input type="password" placeholder="Old Password" onChange={e => setPassData({...passData, oldPassword: e.target.value})} required />
